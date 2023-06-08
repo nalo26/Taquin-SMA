@@ -3,6 +3,7 @@ package com.polypote.taquinsma.game;
 import lombok.Data;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,6 +18,7 @@ public class Case {
     public Case(int xdim, int ydim) {
         this.x = xdim;
         this.y = ydim;
+        this.neighbours = new ArrayList<Case>();
     }
 
     public void setOccupied(Agent agent) {

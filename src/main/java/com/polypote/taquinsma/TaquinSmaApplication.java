@@ -4,6 +4,7 @@ import com.polypote.taquinsma.game.Agent;
 import com.polypote.taquinsma.game.Case;
 import processing.core.PApplet;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -19,7 +20,7 @@ public class TaquinSmaApplication extends PApplet {
         initializeAgent(nbAgent);
         randomPlacement(dimX, dimY);
         setNeighbours(dimX, dimY);
-        //startAgents();
+        // startAgents();
     }
 
     private static void initializeGrid(int dimX, int dimY) {
@@ -33,7 +34,7 @@ public class TaquinSmaApplication extends PApplet {
 
     public static void main(String[] args) {
         TaquinSmaApplication application = new TaquinSmaApplication(5, 5, 10);
-        PApplet.runSketch(new String[]{"TaquinSmaApplication"}, application);
+        PApplet.runSketch(new String[] { "TaquinSmaApplication" }, application);
     }
 
     @Override
@@ -52,6 +53,10 @@ public class TaquinSmaApplication extends PApplet {
     @Override
     public void draw() {
         displayBackground();
+
+        for (Agent a : agentList) {
+            displayAgent(a);
+        }
     }
 
     private void displayBackground() {
@@ -81,8 +86,8 @@ public class TaquinSmaApplication extends PApplet {
     public void displayAgent(Agent a) {
         fill(a.getAgentColor().getRGB());
         ellipse(a.getPosX() * FACTOR, a.getPosY() * FACTOR, FACTOR, FACTOR);
-        //fill(Color.BLACK.getRGB());
-        //text((int) a.getId(), a.getPosX() * FACTOR + 40, a.getPosY() * FACTOR + 50);
+        // fill(Color.BLACK.getRGB());
+        // text((int) a.getId(), a.getPosX() * FACTOR + 40, a.getPosY() * FACTOR + 50);
     }
 
     private void startAgents() {
@@ -92,7 +97,7 @@ public class TaquinSmaApplication extends PApplet {
     }
 
     private void setNeighbours(int dimX, int dimY) {
-        int[][] cardinals = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        int[][] cardinals = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
         for (int row = 0; row < dimY; row++) {
             for (int col = 0; col < dimX; col++) {
                 for (int[] card : cardinals) {
@@ -134,6 +139,8 @@ public class TaquinSmaApplication extends PApplet {
         int currentAgentY = targetCase.getY();
         for (Agent b : agentList) {
             Case currentCase = b.getTargetCase();
+            if (currentCase == null)
+                continue;
             if (a != b && currentAgentX == currentCase.getX() && currentAgentY == currentCase.getY())
                 return true;
         }
@@ -142,7 +149,8 @@ public class TaquinSmaApplication extends PApplet {
 
     private boolean isAgentOverlapping(Agent a) {
         for (Agent b : agentList) {
-            if (a != b && a.getPosX() == b.getPosX() && a.getPosY() == b.getPosY()) return true;
+            if (a != b && a.getPosX() == b.getPosX() && a.getPosY() == b.getPosY())
+                return true;
         }
         return false;
     }

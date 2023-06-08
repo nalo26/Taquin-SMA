@@ -16,7 +16,7 @@ public class Agent extends Thread {
     private Color agentColor;
 
     public Agent(Case[][] grid) {
-        grid = grid;
+        Agent.grid = grid;
         Random random = new Random();
         agentColor = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }
