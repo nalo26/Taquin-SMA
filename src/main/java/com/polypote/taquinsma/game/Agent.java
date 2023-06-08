@@ -37,6 +37,7 @@ public class Agent extends Thread {
             }
             if (!haveToRunProcess)
                 continue;
+            // System.out.println(this.getId() + ": (" + posX + "," + posY + ")");
 
             pathToTarget = dijkstra(grid[posY][posX]);
             if (pathToTarget.isEmpty())
@@ -47,6 +48,7 @@ public class Agent extends Thread {
     }
 
     public boolean moveTo(Case target) {
+        // TODO: concurential access, leads to teleportation
         if (target.isOccupied())
             return false;
 
@@ -60,41 +62,48 @@ public class Agent extends Thread {
     }
 
     public ArrayList<Case> dijkstra(Case start) {
-        HashMap<Case, Integer> dist = new HashMap<>();
-        HashMap<Case, Case> prev = new HashMap<>();
-        ArrayList<Case> Q = new ArrayList<Case>();
+        // Dijkstra algorithm to find the shortest path from the current position to the
+        // target, and avoiding other agents
+        ArrayList<Case> unvisited = new ArrayList<Case>();
+        HashMap<Case, Integer> distance = new HashMap<Case, Integer>();
+        HashMap<Case, Case> previous = new HashMap<Case, Case>();
 
         for (Case[] row : grid) {
             for (Case c : row) {
-                dist.put(c, Integer.MAX_VALUE);
-                prev.put(c, null);
-                Q.add(c);
+                distance.put(c, Integer.MAX_VALUE);
+                previous.put(c, null);
+                unvisited.add(c);
             }
         }
-        dist.put(start, 0);
 
-        while (!Q.isEmpty()) {
-            Case u = Q.stream().min((a, b) -> dist.get(a) - dist.get(b)).get();
-            Q.remove(u);
+        distance.put(start, 0);
 
-            for (Case v : u.getNeighbours()) {
-                int alt = dist.get(u) + 1;
-                if (alt < dist.get(v)) {
-                    dist.put(v, alt);
-                    prev.put(v, u);
+        while (!unvisited.isEmpty()) {
+            Case current = unvisited.stream().min((a, b) -> distance.get(a) - distance.get(b)).get();
+            unvisited.remove(current);
+
+            if (current == targetCase)
+                break;
+
+            for (Case neighbour : current.getNeighbours()) {
+                if (neighbour.isOccupied() || !unvisited.contains(neighbour))
+                    continue;
+
+                int alt = distance.get(current) + 1;
+                if (alt < distance.get(neighbour)) {
+                    distance.put(neighbour, alt);
+                    previous.put(neighbour, current);
                 }
             }
         }
 
         ArrayList<Case> path = new ArrayList<Case>();
-        Case u = targetCase;
-        while (prev.get(u) != null) {
-            path.add(u);
-            u = prev.get(u);
+        Case current = targetCase;
+        while (previous.get(current) != null) {
+            path.add(current);
+            current = previous.get(current);
         }
-        path.add(u);
         Collections.reverse(path);
-        path.remove(grid[posY][posX]);
         return path;
     }
 }
