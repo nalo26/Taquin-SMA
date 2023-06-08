@@ -22,11 +22,43 @@ public class Case {
     }
 
     public void setOccupied(Agent agent) {
-        this.isOccupied = true;
+        this.isOccupied = agent != null;
         this.agent = agent;
     }
 
     public void addNeighbour(Case caseAt) {
         neighbours.add(caseAt);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Case other = (Case) obj;
+        if (x != other.x)
+            return false;
+        if (y != other.y)
+            return false;
+        if (color == null) {
+            if (other.color != null)
+                return false;
+        } else if (!color.equals(other.color))
+            return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + x;
+        result = prime * result + y;
+        result = prime * result + ((color == null) ? 0 : color.hashCode());
+        return result;
+    }
+
 }

@@ -4,7 +4,6 @@ import com.polypote.taquinsma.game.Agent;
 import com.polypote.taquinsma.game.Case;
 import processing.core.PApplet;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -20,7 +19,7 @@ public class TaquinSmaApplication extends PApplet {
         initializeAgent(nbAgent);
         randomPlacement(dimX, dimY);
         setNeighbours(dimX, dimY);
-        // startAgents();
+        startAgents();
     }
 
     private static void initializeGrid(int dimX, int dimY) {
