@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -21,6 +22,7 @@ public class Agent extends Thread {
     private boolean haveToRunProcess = true;
     private boolean waiting = false;
     private int countWaiting = 0;
+    private ReentrantLock lock = new ReentrantLock();
 
     public Agent(Case[][] grid) {
         Agent.grid = grid;
@@ -36,39 +38,42 @@ public class Agent extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (!this.haveToRunProcess || this.isFinished() || this.isWaiting())
+            if (!this.haveToRunProcess || this.isFinished())
                 continue;
+            if (!this.isWaiting()) {
+                // System.out.println(this.getId() + ": (" + posX + "," + posY + ")");
+                pathToTarget = dijkstra(grid[posY][posX]);
+                if (pathToTarget.isEmpty())
+                    continue;
 
-            // System.out.println(this.getId() + ": (" + posX + "," + posY + ")");
-            pathToTarget = dijkstra(grid[posY][posX]);
-            if (pathToTarget.isEmpty())
-                continue;
+                this.waiting = !this.moveTo(pathToTarget.get(0));
 
-            this.waiting = !this.moveTo(pathToTarget.get(0));
-
-            if (this.isWaiting()) {
-                if (this.countWaiting < 30)
-                    this.countWaiting++;
-                else {
-                    this.waiting = false;
-                    this.countWaiting = 0;
-                }
+            } else if (this.countWaiting < 30)
+                this.countWaiting++;
+            else {
+                this.waiting = false;
+                this.countWaiting = 0;
             }
             this.haveToRunProcess = false;
         }
     }
 
     public boolean moveTo(Case target) {
-        if (target.isOccupied())
-            return false;
+        lock.lock();
+        try {
+            if (target.isOccupied())
+                return false;
 
-        grid[posY][posX].setOccupied(null);
-        target.setOccupied(this);
+            grid[posY][posX].setOccupied(null);
+            target.setOccupied(this);
 
-        this.setPosX(target.getX());
-        this.setPosY(target.getY());
-        tempo();
-        return true;
+            this.setPosX(target.getX());
+            this.setPosY(target.getY());
+            tempo();
+            return true;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public ArrayList<Case> dijkstra(Case start) {
