@@ -55,6 +55,7 @@ public class TaquinSmaApplication extends PApplet {
         displayBackground();
 
         for (Agent a : agentList) {
+            a.setHaveToRunProcess(true);
             displayAgent(a);
         }
     }

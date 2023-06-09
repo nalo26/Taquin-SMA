@@ -20,6 +20,7 @@ public class Agent extends Thread {
     private ArrayList<Case> pathToTarget;
     private boolean haveToRunProcess = true;
     private boolean waiting = false;
+    private int countWaiting = 0;
 
     public Agent(Case[][] grid) {
         Agent.grid = grid;
@@ -31,24 +32,33 @@ public class Agent extends Thread {
     public void run() {
         while (!this.isInterrupted()) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (!haveToRunProcess)
+            if (!this.haveToRunProcess || this.isFinished() || this.isWaiting())
                 continue;
-            // System.out.println(this.getId() + ": (" + posX + "," + posY + ")");
 
+            // System.out.println(this.getId() + ": (" + posX + "," + posY + ")");
             pathToTarget = dijkstra(grid[posY][posX]);
             if (pathToTarget.isEmpty())
                 continue;
 
             this.waiting = !this.moveTo(pathToTarget.get(0));
+
+            if (this.isWaiting()) {
+                if (this.countWaiting < 30)
+                    this.countWaiting++;
+                else {
+                    this.waiting = false;
+                    this.countWaiting = 0;
+                }
+            }
+            this.haveToRunProcess = false;
         }
     }
 
     public boolean moveTo(Case target) {
-        // TODO: concurential access, leads to teleportation
         if (target.isOccupied())
             return false;
 
@@ -57,7 +67,7 @@ public class Agent extends Thread {
 
         this.setPosX(target.getX());
         this.setPosY(target.getY());
-
+        tempo();
         return true;
     }
 
@@ -105,5 +115,18 @@ public class Agent extends Thread {
         }
         Collections.reverse(path);
         return path;
+    }
+
+    public boolean isFinished() {
+        return this.posX == targetCase.getX() && this.posY == targetCase.getY();
+    }
+
+    private void tempo() {
+        long tps = 500; // + (long) (Math.random() * 800);
+        try {
+            sleep(tps);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
