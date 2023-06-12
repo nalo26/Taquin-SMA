@@ -61,4 +61,9 @@ public class Case {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "[" + x + ", " + y + "]";
+    }
+
 }

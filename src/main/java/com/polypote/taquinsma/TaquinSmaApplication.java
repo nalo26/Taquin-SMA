@@ -4,7 +4,7 @@ import com.polypote.taquinsma.game.Agent;
 import com.polypote.taquinsma.game.Case;
 import processing.core.PApplet;
 
-// import java.awt.Color;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -33,7 +33,7 @@ public class TaquinSmaApplication extends PApplet {
     }
 
     public static void main(String[] args) {
-        TaquinSmaApplication application = new TaquinSmaApplication(5, 5, 10);
+        TaquinSmaApplication application = new TaquinSmaApplication(3, 3, 8);
         PApplet.runSketch(new String[] { "TaquinSmaApplication" }, application);
     }
 
@@ -87,8 +87,8 @@ public class TaquinSmaApplication extends PApplet {
     public void displayAgent(Agent a) {
         fill(a.getAgentColor().getRGB());
         ellipse(a.getPosX() * FACTOR, a.getPosY() * FACTOR, FACTOR, FACTOR);
-        // fill(Color.BLACK.getRGB());
-        // text((int) a.getId(), a.getPosX() * FACTOR + 40, a.getPosY() * FACTOR + 50);
+        fill(Color.BLACK.getRGB());
+        text((int) a.getId(), a.getPosX() * FACTOR + 40, a.getPosY() * FACTOR + 50);
     }
 
     private void startAgents() {

@@ -32,22 +32,36 @@ public class Agent extends Thread {
 
     @Override
     public void run() {
+        // System.out.println(this);
+        tempo();
         while (!this.isInterrupted()) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (!this.haveToRunProcess || this.isFinished())
+            if (!this.haveToRunProcess)
                 continue;
             if (!this.isWaiting()) {
-                // System.out.println(this.getId() + ": (" + posX + "," + posY + ")");
-                handleMessages();
-                pathToTarget = dijkstra(grid[posY][posX]);
+                if (this.messages.size() > 0) {
+                    handleMessages();
+                    continue;
+                }
+
+                if (this.isFinished())
+                    continue;
+                // pathToTarget = dijkstra(grid[posY][posX]);
+                pathToTarget = euclidianPath(grid[posY][posX]);
+                // String path = "";
+                // for (Case c : pathToTarget) {
+                // path += c + " -> ";
+                // }
+                // System.out.println("Path of " + getId() + ": " + path);
                 if (pathToTarget.isEmpty())
                     continue;
 
                 this.waiting = !this.moveTo(pathToTarget.get(0));
+                // System.out.println(this);
 
             } else if (this.countWaiting < 30)
                 this.countWaiting++;
@@ -63,7 +77,7 @@ public class Agent extends Thread {
         lock.lock();
         try {
             if (target.isOccupied()) {
-                sendMessage(target.getAgent());
+                sendMessage(target.getAgent(), MessageType.MOVE);
                 return false;
             }
             grid[posY][posX].setOccupied(null);
@@ -124,6 +138,45 @@ public class Agent extends Thread {
         return path;
     }
 
+    public ArrayList<Case> euclidianPath(Case start) {
+        // Euclidian algorithm to find the shortest path from the current position to
+        // the target
+        Random random = new Random();
+
+        Case nextPos = grid[getPosY()][getPosX()];
+
+        ArrayList<Case> path = new ArrayList<>();
+        int minDist = Integer.MAX_VALUE;
+
+        while (!nextPos.equals(grid[this.targetCase.getY()][this.targetCase.getX()])) {
+            List<Case> neighbors = nextPos.getNeighbours();
+
+            // To allow the agent to get out of blocking situation we add a little bit of
+            // randomness
+            // regarding the choice of the next case
+            int isRandom = random.nextInt(0, 20);
+            if (isRandom == 0) {
+                int randomIndex;
+                do {
+                    randomIndex = random.nextInt(0, neighbors.size());
+                } while (neighbors.get(randomIndex).equals(grid[getPosY()][getPosX()]));
+                nextPos = neighbors.get(randomIndex);
+            } else {
+                for (Case neighbor : neighbors) {
+                    int newDist = calculateDistance(neighbor, grid[this.targetCase.getY()][this.targetCase.getX()]);
+
+                    if (newDist < minDist || (newDist == minDist && Math.random() > 0.5)) {
+                        minDist = newDist;
+                        nextPos = neighbor;
+                    }
+                }
+            }
+            path.add(nextPos);
+        }
+
+        return path;
+    }
+
     public boolean isFinished() {
         return this.posX == targetCase.getX() && this.posY == targetCase.getY();
     }
@@ -137,32 +190,58 @@ public class Agent extends Thread {
         }
     }
 
+    @Override
+    public String toString() {
+        return "#" + getId() + " (" + posX + ", " + posY + ")";
+    }
+
     public void addMessage(Message message) {
         this.messages.add(message);
     }
 
-    public void sendMessage(Agent _receiver) {
-        Message message = new Message(this, _receiver);
+    public void sendMessage(Agent _receiver, MessageType _type) {
+        Message message = new Message(this, _receiver, _type);
+        // System.out.println(this + " send message to " + _receiver);
         message.send();
     }
 
     public void handleMessages() {
         Message message = this.messages.poll();
-        if (message == null) return;
+        // System.out.println(this + " received message from " + message.getSender());
+
+        if (message.getType() == MessageType.FINISH) {
+            this.waiting = false;
+            return;
+        }
+
+        // If message type is Move, agent is asking to move to a neighbour case
         List<Case> neighboursCases = grid[this.posY][this.posX].getNeighbours();
-        List<Agent> occupiedNeighbours = new ArrayList<>(neighboursCases.stream().filter(Case::isOccupied).map(aCase -> aCase.getAgent()).toList());
-        List<Case> freeNeighboursCases = neighboursCases.stream().filter(neighbour -> !neighbour.isOccupied()).toList();
+        List<Agent> occupiedNeighbours = new ArrayList<>(
+                neighboursCases.stream().filter(Case::isOccupied).map(aCase -> aCase.getAgent()).toList());
+        List<Case> freeNeighboursCases = new ArrayList<>(
+                neighboursCases.stream().filter(neighbour -> !neighbour.isOccupied()).toList());
+        freeNeighboursCases.remove(message.getSender().targetCase);
         Random random = new Random();
         if (freeNeighboursCases.size() >= 1) {
             // If a neighbour case is available agent is moving to it
-            Case target = freeNeighboursCases.get(random.nextInt(freeNeighboursCases.size()));
+            Case target = freeNeighboursCases.stream()
+                    .min((c1, c2) -> Integer.compare(calculateDistance(c1, targetCase),
+                            calculateDistance(c2, targetCase)))
+                    .orElseGet(() -> freeNeighboursCases.get(random.nextInt(freeNeighboursCases.size())));
             this.moveTo(target);
+            this.sendMessage(message.getSender(), MessageType.FINISH);
+            this.waiting = true;
             return;
         }
-        // If no free neighbour case available agent is asking random neighbour agent to move
+        // If no free neighbour case available agent is asking random neighbour agent to
+        // move
         occupiedNeighbours.remove(message.getSender());
         Agent target = occupiedNeighbours.get(random.nextInt(occupiedNeighbours.size()));
-        this.sendMessage(target);
+        this.sendMessage(target, MessageType.MOVE);
+        this.messages.clear();
+    }
 
+    public int calculateDistance(Case a, Case b) {
+        return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
     }
 }

@@ -11,6 +11,8 @@ public class Message {
 
     private Agent receiver;
 
+    private MessageType type;
+
     public void send() {
         this.receiver.addMessage(this);
     }
