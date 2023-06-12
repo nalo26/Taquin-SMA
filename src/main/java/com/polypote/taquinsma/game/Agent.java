@@ -3,17 +3,17 @@ package com.polypote.taquinsma.game;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Random;
+import java.awt.*;
+import java.util.List;
+import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Agent extends Thread {
     private static Case[][] grid;
+    private final Queue<Message> messages = new LinkedList<>();
     private int posX;
     private int posY;
     private Case targetCase;
@@ -42,6 +42,7 @@ public class Agent extends Thread {
                 continue;
             if (!this.isWaiting()) {
                 // System.out.println(this.getId() + ": (" + posX + "," + posY + ")");
+                handleMessages();
                 pathToTarget = dijkstra(grid[posY][posX]);
                 if (pathToTarget.isEmpty())
                     continue;
@@ -61,9 +62,10 @@ public class Agent extends Thread {
     public boolean moveTo(Case target) {
         lock.lock();
         try {
-            if (target.isOccupied())
+            if (target.isOccupied()) {
+                sendMessage(target.getAgent());
                 return false;
-
+            }
             grid[posY][posX].setOccupied(null);
             target.setOccupied(this);
 
@@ -94,7 +96,7 @@ public class Agent extends Thread {
         distance.put(start, 0);
 
         while (!unvisited.isEmpty()) {
-            Case current = unvisited.stream().min((a, b) -> distance.get(a) - distance.get(b)).get();
+            Case current = unvisited.stream().min(Comparator.comparingInt(distance::get)).get();
             unvisited.remove(current);
 
             if (current == targetCase)
@@ -133,5 +135,34 @@ public class Agent extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void addMessage(Message message) {
+        this.messages.add(message);
+    }
+
+    public void sendMessage(Agent _receiver) {
+        Message message = new Message(this, _receiver);
+        message.send();
+    }
+
+    public void handleMessages() {
+        Message message = this.messages.poll();
+        if (message == null) return;
+        List<Case> neighboursCases = grid[this.posY][this.posX].getNeighbours();
+        List<Agent> occupiedNeighbours = new ArrayList<>(neighboursCases.stream().filter(Case::isOccupied).map(aCase -> aCase.getAgent()).toList());
+        List<Case> freeNeighboursCases = neighboursCases.stream().filter(neighbour -> !neighbour.isOccupied()).toList();
+        Random random = new Random();
+        if (freeNeighboursCases.size() >= 1) {
+            // If a neighbour case is available agent is moving to it
+            Case target = freeNeighboursCases.get(random.nextInt(freeNeighboursCases.size()));
+            this.moveTo(target);
+            return;
+        }
+        // If no free neighbour case available agent is asking random neighbour agent to move
+        occupiedNeighbours.remove(message.getSender());
+        Agent target = occupiedNeighbours.get(random.nextInt(occupiedNeighbours.size()));
+        this.sendMessage(target);
+
     }
 }
