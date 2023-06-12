@@ -16,6 +16,8 @@ public class TaquinSmaApplication extends PApplet {
     private List<Agent> agentList;
 
     public TaquinSmaApplication(int dimX, int dimY, int nbAgent) {
+        if (nbAgent > dimX * dimY - 1)
+            throw new IllegalArgumentException("Too many agents for this grid");
         initializeGrid(dimX, dimY);
         initializeAgent(nbAgent);
         randomPlacement(dimX, dimY);
@@ -33,7 +35,7 @@ public class TaquinSmaApplication extends PApplet {
     }
 
     public static void main(String[] args) {
-        TaquinSmaApplication application = new TaquinSmaApplication(3, 3, 8);
+        TaquinSmaApplication application = new TaquinSmaApplication(4, 4, 15);
         PApplet.runSketch(new String[] { "TaquinSmaApplication" }, application);
     }
 

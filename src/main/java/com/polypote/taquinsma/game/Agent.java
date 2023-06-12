@@ -236,6 +236,11 @@ public class Agent extends Thread {
         // If no free neighbour case available agent is asking random neighbour agent to
         // move
         occupiedNeighbours.remove(message.getSender());
+        if (occupiedNeighbours.size() == 0) {
+            this.sendMessage(message.getSender(), MessageType.FINISH);
+            this.waiting = true;
+            return;
+        }
         Agent target = occupiedNeighbours.get(random.nextInt(occupiedNeighbours.size()));
         this.sendMessage(target, MessageType.MOVE);
         this.messages.clear();
