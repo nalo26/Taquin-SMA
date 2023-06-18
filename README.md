@@ -35,4 +35,8 @@ Notre application se découpe ainsi :
 ### Essais
 
 L'algorithme de Dijkstra donne des résultats questionnables. En effet, le chemin trouvé vers la case objectif comporte régulièrement des déplacements impossibles : mouvements en diagonal ou téléportation.
+Nous avons donc opté pour un algorithme de distance euclidienne, qui donne de meilleurs résultats.
 
+En revanche, avec un grand nombre d'agents, nous recontrons des problèmes d'accès concurrents à la grille. Nous avons donc mis en place un système de verrouillage de la grille, qui permet à un seul agent de la modifier à la fois. Malheureusement, les problèmes persistent, et nous n'avons pas réussi à les résoudre. Il arrive donc parfois qu'un agent disparaisse temporairement de la grille, mais cela n'arrive que très rarement dans une grille pas très remplie.
+
+Nous avons réussi à résoudre sans ce problème le taquin 5x5 avec 21 agents en 6 minutes. Le résultat est visionnable ici : [https://youtu.be/vkO7q9U6QWw](https://youtu.be/vkO7q9U6QWw)

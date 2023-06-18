@@ -35,7 +35,7 @@ public class TaquinSmaApplication extends PApplet {
     }
 
     public static void main(String[] args) {
-        TaquinSmaApplication application = new TaquinSmaApplication(5, 5, 24);
+        TaquinSmaApplication application = new TaquinSmaApplication(5, 5, 21);
         PApplet.runSketch(new String[] { "TaquinSmaApplication" }, application);
     }
 
