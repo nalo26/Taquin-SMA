@@ -77,7 +77,8 @@ public class Agent extends Thread {
         lock.lock();
         try {
             if (target.isOccupied()) {
-                sendMessage(target.getAgent(), MessageType.MOVE);
+                if (!target.getAgent().isWaiting())
+                    sendMessage(target.getAgent(), MessageType.MOVE);
                 return false;
             }
             grid[posY][posX].setOccupied(null);
@@ -229,18 +230,18 @@ public class Agent extends Thread {
                             calculateDistance(c2, targetCase)))
                     .orElseGet(() -> freeNeighboursCases.get(random.nextInt(freeNeighboursCases.size())));
             this.moveTo(target);
-            this.sendMessage(message.getSender(), MessageType.FINISH);
+            // this.sendMessage(message.getSender(), MessageType.FINISH);
             this.waiting = true;
             return;
         }
         // If no free neighbour case available agent is asking random neighbour agent to
         // move
         occupiedNeighbours.remove(message.getSender());
-        if (occupiedNeighbours.size() == 0) {
-            this.sendMessage(message.getSender(), MessageType.FINISH);
-            this.waiting = true;
-            return;
-        }
+        // if (occupiedNeighbours.size() == 0) {
+        // this.sendMessage(message.getSender(), MessageType.FINISH);
+        // this.waiting = true;
+        // return;
+        // }
         Agent target = occupiedNeighbours.get(random.nextInt(occupiedNeighbours.size()));
         this.sendMessage(target, MessageType.MOVE);
         this.messages.clear();

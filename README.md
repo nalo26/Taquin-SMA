@@ -21,8 +21,18 @@ Notre application se découpe ainsi :
 
 ### Fonctionnalités
 
-- features qui fonctionne
+- Génération d'une grille aléatoire
+  - Placement aléatoire des agents (en évitant les superpositions)
+  - Placement aléatoire de leur case cible (en évitant les superpositions)
+- Affichage de la grille
+- Algorithmes de recherche de chemin
+  - Dijkstra
+  - Distance euclidienne
+- Déplacement des agents
+- Envoi de messages entre agents
+- Résolution du taquin
 
 ### Essais
 
-- ce qu'on a essayé et qui ne fonctionne pas
+L'algorithme de Dijkstra donne des résultats questionnables. En effet, le chemin trouvé vers la case objectif comporte régulièrement des déplacements impossibles : mouvements en diagonal ou téléportation.
+
