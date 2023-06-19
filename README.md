@@ -1,7 +1,7 @@
 # Compte rendu TP Taquin SMA
 
 > <u>Auteurs</u> : **Nathan Peyronnet** et **Émilie Vey**  
-> <u>Date</u> : 12/06/2023
+> <u>Date</u> : 19/06/2023
 
 ### Taille maximale du taquin
 
@@ -39,4 +39,6 @@ Nous avons donc opté pour un algorithme de distance euclidienne, qui donne de m
 
 En revanche, avec un grand nombre d'agents, nous recontrons des problèmes d'accès concurrents à la grille. Nous avons donc mis en place un système de verrouillage de la grille, qui permet à un seul agent de la modifier à la fois. Malheureusement, les problèmes persistent, et nous n'avons pas réussi à les résoudre. Il arrive donc parfois qu'un agent disparaisse temporairement de la grille, mais cela n'arrive que très rarement dans une grille pas très remplie.
 
-Nous avons réussi à résoudre sans ce problème le taquin 5x5 avec 21 agents en 6 minutes. Le résultat est visionnable ici : [https://youtu.be/vkO7q9U6QWw](https://youtu.be/vkO7q9U6QWw)
+Nous avons réussi à résoudre sans ce problème le **taquin 5x5 avec 21 agents** en 6 minutes. Le résultat est visionnable ici : [https://youtu.be/vkO7q9U6QWw](https://youtu.be/vkO7q9U6QWw).
+
+Malheureusement, nous n'avons pas eu le temps nécessaire sur le projet pour résoudre ce problème. Nous avons quand même réussi à résoudre le taquin avec 24 agents, mais le problèmes d'agents disparaissant est survenu quelques fois.
