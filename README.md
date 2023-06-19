@@ -5,7 +5,11 @@
 
 ### Taille maximale du taquin
 
-Notre code a réussi à résoudre le taquin 3x3 (8 pièces) en une dizaine de minutes. Nous pensons qu'il est capable de faire le 5x5 (24 pièces).
+Notre code a réussi à résoudre le taquin complet 3x3 (8 pièces) en une dizaine de minutes.
+
+Nous avons réussi à résoudre le **taquin 5x5 avec 21 agents** en 6 minutes. Le résultat est visionnable ici : [https://youtu.be/vkO7q9U6QWw](https://youtu.be/vkO7q9U6QWw).
+
+Malheureusement, nous n'avons pas eu le temps nécessaire sur le projet pour résoudre un problème nous empêchant de résoudre correctement le taquin 5x5 complet. En effet, certaines pièces venaient à disparaitre subitement avant de réapparaitre quelques coups après (voir plus bas). Nous avons quand même réussi à **résoudre un taquin complet 5x5** (24 pièces), mais le bug est survenu quelques fois.
 
 ### Architecture
 
@@ -34,11 +38,7 @@ Notre application se découpe ainsi :
 
 ### Essais
 
-L'algorithme de Dijkstra donne des résultats questionnables. En effet, le chemin trouvé vers la case objectif comporte régulièrement des déplacements impossibles : mouvements en diagonal ou téléportation.
+L'**algorithme de Dijkstra donne des résultats questionnables**. En effet, le chemin trouvé vers la case objectif comporte régulièrement des déplacements impossibles : mouvements en diagonal ou téléportation.
 Nous avons donc opté pour un algorithme de distance euclidienne, qui donne de meilleurs résultats.
 
-En revanche, avec un grand nombre d'agents, nous recontrons des problèmes d'accès concurrents à la grille. Nous avons donc mis en place un système de verrouillage de la grille, qui permet à un seul agent de la modifier à la fois. Malheureusement, les problèmes persistent, et nous n'avons pas réussi à les résoudre. Il arrive donc parfois qu'un agent disparaisse temporairement de la grille, mais cela n'arrive que très rarement dans une grille pas très remplie.
-
-Nous avons réussi à résoudre sans ce problème le **taquin 5x5 avec 21 agents** en 6 minutes. Le résultat est visionnable ici : [https://youtu.be/vkO7q9U6QWw](https://youtu.be/vkO7q9U6QWw).
-
-Malheureusement, nous n'avons pas eu le temps nécessaire sur le projet pour résoudre ce problème. Nous avons quand même réussi à résoudre le taquin avec 24 agents, mais le problèmes d'agents disparaissant est survenu quelques fois.
+En revanche, avec un grand nombre d'agents, nous rencontrons des problèmes d'accès concurrents à la grille. Nous avons donc mis en place un système de verrouillage de la grille, qui permet à un seul agent de la modifier à la fois. Malheureusement, les problèmes persistent, et nous n'avons pas réussi à les résoudre. Il arrive donc parfois qu'**un agent disparaisse** temporairement de la grille, mais cela n'arrive que très rarement dans une grille pas très remplie (21 agents en 5x5 par exemple).
