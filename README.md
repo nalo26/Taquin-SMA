@@ -1,6 +1,6 @@
 # Compte rendu TP Taquin SMA
 
-> <u>Auteurs</u> : **Nathan Peyronnet** et **Émilie Vey**  
+> <u>Auteurs</u> : **_REDACTED_**  
 > <u>Date</u> : 19/06/2023
 
 ### Taille maximale du taquin
